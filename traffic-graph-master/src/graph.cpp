@@ -100,6 +100,11 @@ const std::vector<std::string> Graph::search_shortest_path(const std::string &so
         chemin.push_back(courant);
         courant = from[courant]->id();
       }
+      // Placer source dans chemin
+      chemin.push_back(source);
+      // Inverser chemin
+      std::reverse(chemin.begin(), chemin.end()); // TODO :ici c'est plus efficace avec une list ou stack a voir si on peut changer
+      return std::move(chemin);                   // utilisation de la move semantic pour eviter la copie
     }
   }
 
