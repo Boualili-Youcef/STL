@@ -106,27 +106,30 @@ const std::vector<std::string> Graph::search_shortest_path(const std::string &so
       std::reverse(chemin.begin(), chemin.end()); // TODO :ici c'est plus efficace avec une list ou stack a voir si on peut changer
       return std::move(chemin);                   // utilisation de la move semantic pour eviter la copie
     }
-  }
-
-  for (const auto &vertex : vertices())
-  {
-    for (const auto &edge : vertex.second->out_edges())
+    else
     {
-      // ca retourne un weak_ptr donc on le lock pour avoir un shared_ptr
-      std::shared_ptr<Vertex> out_vertex = edge.lock()->out_vertex().lock(); // out car c'est la ou on va
-      if (out_vertex != nullptr)
-      {
-        // La on cherche le plus proche voisin donc
-        unsigned int distance = edge.lock()->length();
+      auto successeurs = vertices().at(courant); // the current vertex
 
-        from[out_vertex->id()] = vertex.second;
+      // For each outgoing edge from the current vertex
+      for (const auto &succ_edge : successeurs->out_edges())
+      {
+        if (auto edge = succ_edge.lock())
+        {
+          if (auto succ = edge->out_vertex().lock())
+          {
+            std::string successeur = succ->id();
+            unsigned int weight = edge->length();
+
+            if (score[successeur] == inf || (score[courant] + weight < score[successeur]))
+            {
+              from[successeur] = successeurs;
+              score[successeur] = score[courant] + weight;
+              queue.push(successeur);
+            }
+          }
+        }
       }
     }
   }
-
-  Graph::Vertices::const_iterator it = vertices().find(source);
-  if (it != vertices().end())
-  {
-    from[source] = nullptr;
-  }
+  return std::vector<std::string>();
 }
