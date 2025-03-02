@@ -62,8 +62,6 @@ std::shared_ptr<Vertex> Graph::generator(const std::string &end_id) const
 
 const std::vector<std::string> Graph::search_shortest_path(const std::string &source, const std::string &destination) const
 {
-  // Taille du graphe:
-  unsigned int n = vertices().size();
   // Pour plus l'infini vu que c'est des int donc on prend la valeur max je separe pour mieux comprendre
   unsigned int inf = std::numeric_limits<unsigned int>::max();
   // J'utilise un map pour stocker les sommets et leur score
@@ -75,9 +73,12 @@ const std::vector<std::string> Graph::search_shortest_path(const std::string &so
 
   // from[i]=plus proche voisin connu pour tout i telque i est un sommet
   // Un map : clé = sommet, valeur = sommet le plus proche
-  std::map<std::string, std::shared_ptr<Vertex>> from;
+  // TODO : j'ai modifier pour mettre string au lieu de shared_ptr<Vertex>  et utilisation de unordered_map
+  // vu que l'ordre n'a pas d'importance je pense que c'est plus efficace O(1) vs O(log(n)) pour map
+  std::unordered_map<std::string, std::string> from;
 
   // Liste des sommets en cours de traitement
+  // TODO : je pese vaut mieux utiliser une priority queue pour avoir le sommet le plus proche en premier
   std::queue<std::string> queue;
 
   score[source] = 0;
@@ -98,7 +99,7 @@ const std::vector<std::string> Graph::search_shortest_path(const std::string &so
       {
         // Placer courant dans chemin
         chemin.push_back(courant);
-        courant = from[courant]->id();
+        courant = from[courant];
       }
       // Placer source dans chemin
       chemin.push_back(source);
@@ -108,21 +109,21 @@ const std::vector<std::string> Graph::search_shortest_path(const std::string &so
     }
     else
     {
-      auto successeurs = vertices().at(courant); // the current vertex
+      auto current = vertices().at(courant); // le sommet courant
 
-      // For each outgoing edge from the current vertex
-      for (const auto &succ_edge : successeurs->out_edges())
+      // Pour chaque sommet successeur de courant
+      for (const auto &current_edge_sortant : current->out_edges())
       {
-        if (auto edge = succ_edge.lock())
+        if (auto edge = current_edge_sortant.lock())
         {
-          if (auto succ = edge->out_vertex().lock())
+          if (auto succ = edge->out_vertex().lock()) // l'arc courant va vers le sommet successeur succ
           {
-            std::string successeur = succ->id();
-            unsigned int weight = edge->length();
+            std::string successeur = succ->id();  // je récupere l'id du sommet successeur la ou on va (destination)
+            unsigned int weight = edge->length(); // le poids de l'arc courant
 
             if (score[successeur] == inf || (score[courant] + weight < score[successeur]))
             {
-              from[successeur] = successeurs;
+              from[successeur] = current->id();
               score[successeur] = score[courant] + weight;
               queue.push(successeur);
             }
@@ -131,5 +132,5 @@ const std::vector<std::string> Graph::search_shortest_path(const std::string &so
       }
     }
   }
-  return std::vector<std::string>();
+  return {};
 }
