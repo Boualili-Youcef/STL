@@ -36,7 +36,7 @@ public:
   // search_shortest_path
   // TODO: A voir si vaut mieux retourner un vector de Vertices ou de shared_ptr<Vertex>
 
-  const std::vector<std::shared_ptr<Vertex>> search_shortest_path(const std::string &source, const std::string &destination) const;
+  const std::vector<std::string> search_shortest_path(const std::string &source, const std::string &destination) const;
 
   virtual ~Graph() = default;
 

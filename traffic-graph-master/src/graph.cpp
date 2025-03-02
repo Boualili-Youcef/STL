@@ -60,7 +60,7 @@ std::shared_ptr<Vertex> Graph::generator(const std::string &end_id) const
   return nullptr;
 }
 
-const std::vector<std::shared_ptr<Vertex>> Graph::search_shortest_path(const std::string &source, const std::string &destination) const
+const std::vector<std::string> Graph::search_shortest_path(const std::string &source, const std::string &destination) const
 {
   // Taille du graphe:
   unsigned int n = vertices().size();
@@ -85,6 +85,24 @@ const std::vector<std::shared_ptr<Vertex>> Graph::search_shortest_path(const std
   // ajout de sourrce dans la queue
   queue.push(source);
 
+  // On parcourt la queue
+  while (!queue.empty())
+  {
+    std::string courant = queue.front();
+    queue.pop();
+    if (courant == destination)
+    {
+      // chemin = liste vide
+      std::vector<std::string> chemin;
+      while (courant != source)
+      {
+        // Placer courant dans chemin
+        chemin.push_back(courant);
+        courant = from[courant]->id();
+      }
+    }
+  }
+
   for (const auto &vertex : vertices())
   {
     for (const auto &edge : vertex.second->out_edges())
@@ -93,14 +111,14 @@ const std::vector<std::shared_ptr<Vertex>> Graph::search_shortest_path(const std
       std::shared_ptr<Vertex> out_vertex = edge.lock()->out_vertex().lock(); // out car c'est la ou on va
       if (out_vertex != nullptr)
       {
-        // La on cherche le plus proche voisin donc 
+        // La on cherche le plus proche voisin donc
         unsigned int distance = edge.lock()->length();
 
         from[out_vertex->id()] = vertex.second;
       }
     }
   }
-  
+
   Graph::Vertices::const_iterator it = vertices().find(source);
   if (it != vertices().end())
   {
