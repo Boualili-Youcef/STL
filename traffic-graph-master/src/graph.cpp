@@ -66,5 +66,44 @@ const std::vector<std::shared_ptr<Vertex>> Graph::search_shortest_path(const std
   unsigned int n = vertices().size();
   // Pour plus l'infini vu que c'est des int donc on prend la valeur max je separe pour mieux comprendre
   unsigned int inf = std::numeric_limits<unsigned int>::max();
-  std::vector<unsigned int> score(n, inf);
+  // J'utilise un map pour stocker les sommets et leur score
+  std::map<std::string, unsigned int> score;
+  for (const auto &vertex : vertices())
+  {
+    score[vertex.first] = inf;
+  }
+
+  // from[i]=plus proche voisin connu pour tout i telque i est un sommet
+  // Un map : clé = sommet, valeur = sommet le plus proche
+  std::map<std::string, std::shared_ptr<Vertex>> from;
+
+  // Liste des sommets en cours de traitement
+  std::queue<std::string> queue;
+
+  score[source] = 0;
+
+  // ajout de sourrce dans la queue
+  queue.push(source);
+
+  for (const auto &vertex : vertices())
+  {
+    for (const auto &edge : vertex.second->out_edges())
+    {
+      // ca retourne un weak_ptr donc on le lock pour avoir un shared_ptr
+      std::shared_ptr<Vertex> out_vertex = edge.lock()->out_vertex().lock(); // out car c'est la ou on va
+      if (out_vertex != nullptr)
+      {
+        // La on cherche le plus proche voisin donc 
+        unsigned int distance = edge.lock()->length();
+
+        from[out_vertex->id()] = vertex.second;
+      }
+    }
+  }
+  
+  Graph::Vertices::const_iterator it = vertices().find(source);
+  if (it != vertices().end())
+  {
+    from[source] = nullptr;
+  }
 }
