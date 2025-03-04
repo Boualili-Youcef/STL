@@ -24,7 +24,6 @@ int main() {
     factory->addZone(zone1);
     factory->addZone(zone2);
 
-    std::cout << *factory << std::endl;
-
+    factory->display();
     return 0;
 }

@@ -2,7 +2,12 @@
 
 class Machine
 {
-public: 
-int setup_time, process_time;
+public:
+int setup_time;
+int process_time;
+    void display() const
+    {
+        std::cout << "Machine" << std::endl;
+    }
 
-}; // Zone
+};
