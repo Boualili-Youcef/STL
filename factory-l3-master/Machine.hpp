@@ -12,7 +12,7 @@ namespace factory
         int process_time;
         void display() const 
         {
-            std::cout << "Machine" << std::endl;
+            std::cout << "Machinfe" << std::endl;
         }
         ~Machine() = default;
     };
